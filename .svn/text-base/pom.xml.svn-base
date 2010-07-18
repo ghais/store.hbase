@@ -1,0 +1,104 @@
+<?xml version="1.0"?>
+<project>
+    <modelVersion>4.0.0</modelVersion>
+	<groupId>org.datanucleus</groupId>
+	<version>2.0.0-release</version>
+    <artifactId>datanucleus-hbase</artifactId>
+    <name>DataNucleus HBase plugin</name>
+    <description>
+        DataNucleus supports persistence to heterogeneous datastores and this plugin provides persistence to HBase.
+    </description>
+
+    <repositories>
+        <repository>
+            <id>local.repository</id>
+            <url>file:../../local.repository/trunk</url>
+            <layout>legacy</layout>
+        </repository>
+        <repository>
+            <id>DN_M2_Repo</id>
+            <url>http://www.datanucleus.org/downloads/maven2/</url>
+        </repository>
+    </repositories>
+    <distributionManagement>
+        <!-- use the following if you're not using a snapshot version. -->
+        <repository>
+            <id>datanucleus-nightly</id>
+            <name>DataNucleus Nightly</name>
+            <url>file:/home/jpox/htdocs/downloads/maven2-nightly/</url>
+            <uniqueVersion>false</uniqueVersion>
+        </repository>
+    </distributionManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.datanucleus</groupId>
+            <artifactId>datanucleus-core</artifactId>
+            <version>[2.0.99, )</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-core</artifactId>
+            <version>0.20.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hbase</artifactId>
+            <version>0.20.3</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <sourceDirectory>src/java</sourceDirectory>
+        <resources>
+            <resource>
+                <filtering>true</filtering>
+                <directory>src/java</directory>
+                <includes>
+                    <include>**/plugin.xml</include>
+                    <include>**/*.properties</include>
+                    <include>**/*.dtd</include>
+                    <include>**/*.xsd</include>
+                    <include>**/*.jdo</include>
+                    <include>**/META-INF/services/*</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>${basedir}</directory>
+                <includes>
+                    <include>plugin.xml</include>
+                </includes>
+            </resource>
+            <resource>
+                <!-- Need to have MANIFEST-MF in place before packaging, so unit-tests will work -->
+                <directory>${basedir}/META-INF</directory>
+                <targetPath>META-INF</targetPath>
+                <includes>
+                    <include>MANIFEST.MF</include>
+                    <include>LICENSE.txt</include>
+                    <include>NOTICE.txt</include>
+                    <include>README.txt</include>
+                </includes>
+            </resource>
+        </resources>
+
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.5</source>
+                    <target>1.5</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestFile>META-INF/MANIFEST.MF</manifestFile>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

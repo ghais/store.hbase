@@ -1,0 +1,65 @@
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/svnroot/datanucleus/!svn/ver/9558/platform/store.hbase/trunk/src/java/org/datanucleus/store/hbase
+END
+HBaseManagedConnection.java
+K 25
+svn:wc:ra_dav:version-url
+V 126
+/svnroot/datanucleus/!svn/ver/7826/platform/store.hbase/trunk/src/java/org/datanucleus/store/hbase/HBaseManagedConnection.java
+END
+HBaseUtils.java
+K 25
+svn:wc:ra_dav:version-url
+V 114
+/svnroot/datanucleus/!svn/ver/8186/platform/store.hbase/trunk/src/java/org/datanucleus/store/hbase/HBaseUtils.java
+END
+HBasePersistenceHandler.java
+K 25
+svn:wc:ra_dav:version-url
+V 127
+/svnroot/datanucleus/!svn/ver/9558/platform/store.hbase/trunk/src/java/org/datanucleus/store/hbase/HBasePersistenceHandler.java
+END
+HBaseInsertFieldManager.java
+K 25
+svn:wc:ra_dav:version-url
+V 127
+/svnroot/datanucleus/!svn/ver/8239/platform/store.hbase/trunk/src/java/org/datanucleus/store/hbase/HBaseInsertFieldManager.java
+END
+ConnectionFactoryImpl.java
+K 25
+svn:wc:ra_dav:version-url
+V 125
+/svnroot/datanucleus/!svn/ver/8199/platform/store.hbase/trunk/src/java/org/datanucleus/store/hbase/ConnectionFactoryImpl.java
+END
+HBaseMetaDataListener.java
+K 25
+svn:wc:ra_dav:version-url
+V 125
+/svnroot/datanucleus/!svn/ver/8186/platform/store.hbase/trunk/src/java/org/datanucleus/store/hbase/HBaseMetaDataListener.java
+END
+HBaseStoreManager.java
+K 25
+svn:wc:ra_dav:version-url
+V 121
+/svnroot/datanucleus/!svn/ver/9225/platform/store.hbase/trunk/src/java/org/datanucleus/store/hbase/HBaseStoreManager.java
+END
+HBaseFetchFieldManager.java
+K 25
+svn:wc:ra_dav:version-url
+V 126
+/svnroot/datanucleus/!svn/ver/8239/platform/store.hbase/trunk/src/java/org/datanucleus/store/hbase/HBaseFetchFieldManager.java
+END
+HBaseConnectionPool.java
+K 25
+svn:wc:ra_dav:version-url
+V 123
+/svnroot/datanucleus/!svn/ver/7826/platform/store.hbase/trunk/src/java/org/datanucleus/store/hbase/HBaseConnectionPool.java
+END
+Localisation.properties
+K 25
+svn:wc:ra_dav:version-url
+V 122
+/svnroot/datanucleus/!svn/ver/7817/platform/store.hbase/trunk/src/java/org/datanucleus/store/hbase/Localisation.properties
+END
