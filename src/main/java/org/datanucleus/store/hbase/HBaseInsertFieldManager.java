@@ -30,6 +30,7 @@ import java.util.TreeMap;
 
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.datanucleus.ClassLoaderResolver;
 import org.datanucleus.StateManager;
 import org.datanucleus.api.ApiAdapter;
@@ -64,127 +65,50 @@ public class HBaseInsertFieldManager extends AbstractFieldManager
         String familyName = HBaseUtils.getFamilyName(acmd, fieldNumber);
         String columnName = HBaseUtils.getQualifierName(acmd, fieldNumber);
 
-        try
-        {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(bos);
-            oos.writeBoolean(value);
-            oos.flush();
-            put.add(familyName.getBytes(), columnName.getBytes(), bos.toByteArray());
-            oos.close();
-            bos.close();
-        }
-        catch (IOException e)
-        {
-            throw new NucleusException(e.getMessage(), e);
-        }
+        put.add(Bytes.toBytes(familyName), Bytes.toBytes(columnName), Bytes.toBytes(value));
+
     }
 
     public void storeByteField(int fieldNumber, byte value)
     {
         String familyName = HBaseUtils.getFamilyName(acmd, fieldNumber);
         String columnName = HBaseUtils.getQualifierName(acmd, fieldNumber);
-        put.add(familyName.getBytes(), columnName.getBytes(), new byte[]{value});
+        put.add(Bytes.toBytes(familyName), Bytes.toBytes(columnName), Bytes.toBytes(value));
     }
 
     public void storeCharField(int fieldNumber, char value)
     {
         String familyName = HBaseUtils.getFamilyName(acmd, fieldNumber);
         String columnName = HBaseUtils.getQualifierName(acmd, fieldNumber);
-        try
-        {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(bos);
-            oos.writeChar(value);
-            oos.flush();
-            put.add(familyName.getBytes(), columnName.getBytes(), bos.toByteArray());
-            oos.close();
-            bos.close();
-        }
-        catch (IOException e)
-        {
-            throw new NucleusException(e.getMessage(), e);
-        }
+        put.add(Bytes.toBytes(familyName), Bytes.toBytes(columnName), Bytes.toBytes(value));
     }
 
     public void storeDoubleField(int fieldNumber, double value)
     {
         String familyName = HBaseUtils.getFamilyName(acmd, fieldNumber);
         String columnName = HBaseUtils.getQualifierName(acmd, fieldNumber);
-        try
-        {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(bos);
-            oos.writeDouble(value);
-            oos.flush();
-            put.add(familyName.getBytes(), columnName.getBytes(), bos.toByteArray());
-            oos.close();
-            bos.close();
-        }
-        catch (IOException e)
-        {
-            throw new NucleusException(e.getMessage(), e);
-        }
+        put.add(Bytes.toBytes(familyName), Bytes.toBytes(columnName), Bytes.toBytes(value));
     }
 
     public void storeFloatField(int fieldNumber, float value)
     {
         String familyName = HBaseUtils.getFamilyName(acmd, fieldNumber);
         String columnName = HBaseUtils.getQualifierName(acmd, fieldNumber);
-        try
-        {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(bos);
-            oos.writeFloat(value);
-            oos.flush();
-            put.add(familyName.getBytes(), columnName.getBytes(), bos.toByteArray());
-            oos.close();
-            bos.close();
-        }
-        catch (IOException e)
-        {
-            throw new NucleusException(e.getMessage(), e);
-        }
+        put.add(Bytes.toBytes(familyName), Bytes.toBytes(columnName), Bytes.toBytes(value));
     }
 
     public void storeIntField(int fieldNumber, int value)
     {
         String familyName = HBaseUtils.getFamilyName(acmd, fieldNumber);
         String columnName = HBaseUtils.getQualifierName(acmd, fieldNumber);
-        try
-        {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(bos);
-            oos.writeInt(value);
-            oos.flush();
-            put.add(familyName.getBytes(), columnName.getBytes(), bos.toByteArray());
-            oos.close();
-            bos.close();
-        }
-        catch (IOException e)
-        {
-            throw new NucleusException(e.getMessage(), e);
-        }
+        put.add(Bytes.toBytes(familyName), Bytes.toBytes(columnName), Bytes.toBytes(value));
     }
 
     public void storeLongField(int fieldNumber, long value)
     {
         String familyName = HBaseUtils.getFamilyName(acmd, fieldNumber);
         String columnName = HBaseUtils.getQualifierName(acmd, fieldNumber);
-        try
-        {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(bos);
-            oos.writeLong(value);
-            oos.flush();
-            put.add(familyName.getBytes(), columnName.getBytes(), bos.toByteArray());
-            oos.close();
-            bos.close();
-        }
-        catch (IOException e)
-        {
-            throw new NucleusException(e.getMessage(), e);
-        }
+        put.add(Bytes.toBytes(familyName), Bytes.toBytes(columnName), Bytes.toBytes(value));
     }
 
     public void storeObjectField(int fieldNumber, Object value)
@@ -193,7 +117,7 @@ public class HBaseInsertFieldManager extends AbstractFieldManager
         String columnName = HBaseUtils.getQualifierName(acmd, fieldNumber);
         if (value == null)
         {
-            delete.deleteColumn(familyName.getBytes(), columnName.getBytes());
+            delete.deleteColumn(Bytes.toBytes(familyName), Bytes.toBytes(columnName));
         }
         else
         {
@@ -219,7 +143,7 @@ public class HBaseInsertFieldManager extends AbstractFieldManager
                         ObjectOutputStream oos = new ObjectOutputStream(bos);
                         oos.writeObject(valueId);
 
-                        put.add(familyName.getBytes(), columnName.getBytes(), bos.toByteArray());
+                        put.add(Bytes.toBytes(familyName), Bytes.toBytes(columnName), bos.toByteArray());
 
                         oos.close();
                         bos.close();
@@ -254,7 +178,7 @@ public class HBaseInsertFieldManager extends AbstractFieldManager
                             ObjectOutputStream oos = new ObjectOutputStream(bos);
                             oos.writeObject(mapping);
 
-                            put.add(familyName.getBytes(), columnName.getBytes(), bos.toByteArray());
+                            put.add(Bytes.toBytes(familyName), Bytes.toBytes(columnName), bos.toByteArray());
 
                             oos.close();
                             bos.close();
@@ -314,7 +238,7 @@ public class HBaseInsertFieldManager extends AbstractFieldManager
                             ObjectOutputStream oos = new ObjectOutputStream(bos);
                             oos.writeObject(mapping);
 
-                            put.add(familyName.getBytes(), columnName.getBytes(), bos.toByteArray());
+                            put.add(Bytes.toBytes(familyName), Bytes.toBytes(columnName), bos.toByteArray());
 
                             oos.close();
                             bos.close();
@@ -334,7 +258,7 @@ public class HBaseInsertFieldManager extends AbstractFieldManager
                         ObjectOutputStream oos = new ObjectOutputStream(bos);
                         oos.writeObject(value);
 
-                        put.add(familyName.getBytes(), columnName.getBytes(), bos.toByteArray());
+                        put.add(Bytes.toBytes(familyName), Bytes.toBytes(columnName), bos.toByteArray());
 
                         oos.close();
                         bos.close();
@@ -352,20 +276,7 @@ public class HBaseInsertFieldManager extends AbstractFieldManager
     {
         String familyName = HBaseUtils.getFamilyName(acmd, fieldNumber);
         String columnName = HBaseUtils.getQualifierName(acmd, fieldNumber);
-        try
-        {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(bos);
-            oos.writeShort(value);
-            oos.flush();
-            put.add(familyName.getBytes(), columnName.getBytes(), bos.toByteArray());
-            oos.close();
-            bos.close();
-        }
-        catch (IOException e)
-        {
-            throw new NucleusException(e.getMessage(), e);
-        }
+        put.add(Bytes.toBytes(familyName), Bytes.toBytes(columnName), Bytes.toBytes(value));
     }
 
     public void storeStringField(int fieldNumber, String value)
@@ -374,23 +285,11 @@ public class HBaseInsertFieldManager extends AbstractFieldManager
         String columnName = HBaseUtils.getQualifierName(acmd, fieldNumber);
         if (value == null)
         {
-            delete.deleteColumn(familyName.getBytes(), columnName.getBytes());
+            delete.deleteColumn(Bytes.toBytes(familyName), Bytes.toBytes(columnName));
         }
         else
         {
-            try
-            {
-                ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                ObjectOutputStream oos = new ObjectOutputStream(bos);
-                oos.writeObject(value);
-                put.add(familyName.getBytes(), columnName.getBytes(), bos.toByteArray());
-                oos.close();
-                bos.close();
-            }
-            catch (IOException e)
-            {
-                throw new NucleusException(e.getMessage(), e);
-            }
+            put.add(Bytes.toBytes(familyName), Bytes.toBytes(columnName), Bytes.toBytes(value));
         }
     }
 }

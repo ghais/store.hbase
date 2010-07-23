@@ -34,6 +34,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.datanucleus.ClassLoaderResolver;
 import org.datanucleus.api.ApiAdapter;
 import org.datanucleus.exceptions.NucleusException;
@@ -65,147 +66,55 @@ public class HBaseFetchFieldManager extends AbstractFieldManager
     {
         String familyName = HBaseUtils.getFamilyName(acmd, fieldNumber);
         String columnName = HBaseUtils.getQualifierName(acmd, fieldNumber);
-        boolean value;
-        try
-        {
-            byte[] bytes = result.getValue(familyName.getBytes(), columnName.getBytes());
-            ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
-            ObjectInputStream ois = new ObjectInputStream(bis);
-            value = ois.readBoolean();
-            ois.close();
-            bis.close();
-        }
-        catch (IOException e)
-        {
-            throw new NucleusException(e.getMessage(), e);
-        }
-        return value;
+
+        return Bytes.toBoolean(result.getValue(Bytes.toBytes(familyName), Bytes.toBytes(columnName)));
+
     }
 
     public byte fetchByteField(int fieldNumber)
     {
         String familyName = HBaseUtils.getFamilyName(acmd, fieldNumber);
         String columnName = HBaseUtils.getQualifierName(acmd, fieldNumber);
-        byte value;
-        try
-        {
-            byte[] bytes = result.getValue(familyName.getBytes(), columnName.getBytes());
-            ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
-            ObjectInputStream ois = new ObjectInputStream(bis);
-            value = ois.readByte();
-            ois.close();
-            bis.close();
-        }
-        catch (IOException e)
-        {
-            throw new NucleusException(e.getMessage(), e);
-        }
-        return value;
+        return result.getValue(Bytes.toBytes(familyName), Bytes.toBytes(columnName))[0];
+
     }
 
     public char fetchCharField(int fieldNumber)
     {
         String familyName = HBaseUtils.getFamilyName(acmd, fieldNumber);
         String columnName = HBaseUtils.getQualifierName(acmd, fieldNumber);
-        char value;
-        try
-        {
-            byte[] bytes = result.getValue(familyName.getBytes(), columnName.getBytes());
-            ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
-            ObjectInputStream ois = new ObjectInputStream(bis);
-            value = ois.readChar();
-            ois.close();
-            bis.close();
-        }
-        catch (IOException e)
-        {
-            throw new NucleusException(e.getMessage(), e);
-        }
-        return value;
+        return Bytes.toChar(result.getValue(Bytes.toBytes(familyName), Bytes.toBytes(columnName)));
+
     }
 
     public double fetchDoubleField(int fieldNumber)
     {
         String familyName = HBaseUtils.getFamilyName(acmd, fieldNumber);
         String columnName = HBaseUtils.getQualifierName(acmd, fieldNumber);
-        double value;
-        try
-        {
-            byte[] bytes = result.getValue(familyName.getBytes(), columnName.getBytes());
-            ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
-            ObjectInputStream ois = new ObjectInputStream(bis);
-            value = ois.readDouble();
-            ois.close();
-            bis.close();
-        }
-        catch (IOException e)
-        {
-            throw new NucleusException(e.getMessage(), e);
-        }
-        return value;
+        return Bytes.toDouble(result.getValue(Bytes.toBytes(familyName), Bytes.toBytes(columnName)));
+
     }
 
     public float fetchFloatField(int fieldNumber)
     {
         String familyName = HBaseUtils.getFamilyName(acmd, fieldNumber);
         String columnName = HBaseUtils.getQualifierName(acmd, fieldNumber);
-        float value;
-        try
-        {
-            byte[] bytes = result.getValue(familyName.getBytes(), columnName.getBytes());
-            ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
-            ObjectInputStream ois = new ObjectInputStream(bis);
-            value = ois.readFloat();
-            ois.close();
-            bis.close();
-        }
-        catch (IOException e)
-        {
-            throw new NucleusException(e.getMessage(), e);
-        }
-        return value;
+        return Bytes.toFloat(result.getValue(Bytes.toBytes(familyName), Bytes.toBytes(columnName)));
     }
 
     public int fetchIntField(int fieldNumber)
     {
         String familyName = HBaseUtils.getFamilyName(acmd, fieldNumber);
         String columnName = HBaseUtils.getQualifierName(acmd, fieldNumber);
-        int value;
-        try
-        {
-            byte[] bytes = result.getValue(familyName.getBytes(), columnName.getBytes());
-            ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
-            ObjectInputStream ois = new ObjectInputStream(bis);
-            value = ois.readInt();
-            ois.close();
-            bis.close();
-        }
-        catch (IOException e)
-        {
-            throw new NucleusException(e.getMessage(), e);
-        }
-        return value;
+        return Bytes.toInt(result.getValue(Bytes.toBytes(familyName), Bytes.toBytes(columnName)));
     }
 
     public long fetchLongField(int fieldNumber)
     {
         String familyName = HBaseUtils.getFamilyName(acmd, fieldNumber);
         String columnName = HBaseUtils.getQualifierName(acmd, fieldNumber);
-        long value;
-        try
-        {
-            byte[] bytes = result.getValue(familyName.getBytes(), columnName.getBytes());
-            ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
-            ObjectInputStream ois = new ObjectInputStream(bis);
-            value = ois.readLong();
-            ois.close();
-            bis.close();
-        }
-        catch (IOException e)
-        {
-            throw new NucleusException(e.getMessage(), e);
-        }
-        return value;
+        return Bytes.toLong(result.getValue(Bytes.toBytes(familyName), Bytes.toBytes(columnName)));
+
     }
 
     public Object fetchObjectField(int fieldNumber)
@@ -223,7 +132,7 @@ public class HBaseFetchFieldManager extends AbstractFieldManager
         {
             try
             {
-                byte[] bytes = result.getValue(familyName.getBytes(), columnName.getBytes());
+                byte[] bytes = result.getValue(Bytes.toBytes(familyName), Bytes.toBytes(columnName));
                 ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
                 ObjectInputStream ois = new ObjectInputStream(bis);
                 value = ois.readObject();
@@ -373,52 +282,21 @@ public class HBaseFetchFieldManager extends AbstractFieldManager
     {
         String familyName = HBaseUtils.getFamilyName(acmd, fieldNumber);
         String columnName = HBaseUtils.getQualifierName(acmd, fieldNumber);
-        short value;
-        try
-        {
-            byte[] bytes = result.getValue(familyName.getBytes(), columnName.getBytes());
-            ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
-            ObjectInputStream ois = new ObjectInputStream(bis);
-            value = ois.readShort();
-            ois.close();
-            bis.close();
-        }
-        catch (IOException e)
-        {
-            throw new NucleusException(e.getMessage(), e);
-        }
-        return value;
+        return Bytes.toShort(result.getValue(Bytes.toBytes(familyName), Bytes.toBytes(columnName)));
+
     }
 
     public String fetchStringField(int fieldNumber)
     {
         String familyName = HBaseUtils.getFamilyName(acmd, fieldNumber);
         String columnName = HBaseUtils.getQualifierName(acmd, fieldNumber);
-        String value;
         try
         {
-            try
-            {
-                byte[] bytes = result.getValue(familyName.getBytes(), columnName.getBytes());
-                ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
-                ObjectInputStream ois = new ObjectInputStream(bis);
-                value = (String) ois.readObject();
-                ois.close();
-                bis.close();
-            }
-            catch (NullPointerException ex)
-            {
-                return null;
-            }
+            return Bytes.toString(result.getValue(Bytes.toBytes(familyName), Bytes.toBytes(columnName)));
         }
-        catch (IOException e)
+        catch (NullPointerException ex)
         {
-            throw new NucleusException(e.getMessage(), e);
+            return null;
         }
-        catch (ClassNotFoundException e)
-        {
-            throw new NucleusException(e.getMessage(), e);
-        }
-        return value;
     }
 }
