@@ -31,7 +31,7 @@ public class HBaseMetaDataListener implements MetaDataListener
 {
     /** Localiser for messages. */
     protected static final Localiser LOCALISER = Localiser.getInstance(
-            "Localisation", HBaseStoreManager.class.getClassLoader());
+        "Localisation", HBaseStoreManager.class.getClassLoader());
 
     private HBaseStoreManager storeManager;
     

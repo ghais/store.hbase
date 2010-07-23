@@ -14,36 +14,55 @@ limitations under the License.
 
 Contributors :
     ...
-***********************************************************************/
+ ***********************************************************************/
 package org.datanucleus.store.hbase;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Put;
+import org.datanucleus.ClassLoaderResolver;
+import org.datanucleus.StateManager;
+import org.datanucleus.api.ApiAdapter;
 import org.datanucleus.exceptions.NucleusException;
 import org.datanucleus.metadata.AbstractClassMetaData;
+import org.datanucleus.metadata.AbstractMemberMetaData;
+import org.datanucleus.metadata.Relation;
+import org.datanucleus.store.ExecutionContext;
+import org.datanucleus.store.ObjectProvider;
 import org.datanucleus.store.fieldmanager.AbstractFieldManager;
 
 public class HBaseInsertFieldManager extends AbstractFieldManager
 {
     Put put;
+
     Delete delete;
+
     AbstractClassMetaData acmd;
 
-    public HBaseInsertFieldManager(AbstractClassMetaData acmd, Put put, Delete delete)
+    ObjectProvider objectProvider;
+
+    public HBaseInsertFieldManager(AbstractClassMetaData acmd, ObjectProvider objectProvider, Put put, Delete delete)
     {
         this.acmd = acmd;
         this.put = put;
         this.delete = delete;
+        this.objectProvider = objectProvider;
     }
-    
+
     public void storeBooleanField(int fieldNumber, boolean value)
     {
-        String familyName = HBaseUtils.getFamilyName(acmd,fieldNumber);
-        String columnName = HBaseUtils.getQualifierName(acmd,fieldNumber);
+        String familyName = HBaseUtils.getFamilyName(acmd, fieldNumber);
+        String columnName = HBaseUtils.getQualifierName(acmd, fieldNumber);
 
         try
         {
@@ -60,18 +79,18 @@ public class HBaseInsertFieldManager extends AbstractFieldManager
             throw new NucleusException(e.getMessage(), e);
         }
     }
-    
+
     public void storeByteField(int fieldNumber, byte value)
     {
-        String familyName = HBaseUtils.getFamilyName(acmd,fieldNumber);
-        String columnName = HBaseUtils.getQualifierName(acmd,fieldNumber);
+        String familyName = HBaseUtils.getFamilyName(acmd, fieldNumber);
+        String columnName = HBaseUtils.getQualifierName(acmd, fieldNumber);
         put.add(familyName.getBytes(), columnName.getBytes(), new byte[]{value});
     }
 
     public void storeCharField(int fieldNumber, char value)
     {
-        String familyName = HBaseUtils.getFamilyName(acmd,fieldNumber);
-        String columnName = HBaseUtils.getQualifierName(acmd,fieldNumber);
+        String familyName = HBaseUtils.getFamilyName(acmd, fieldNumber);
+        String columnName = HBaseUtils.getQualifierName(acmd, fieldNumber);
         try
         {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -87,11 +106,11 @@ public class HBaseInsertFieldManager extends AbstractFieldManager
             throw new NucleusException(e.getMessage(), e);
         }
     }
-    
+
     public void storeDoubleField(int fieldNumber, double value)
     {
-        String familyName = HBaseUtils.getFamilyName(acmd,fieldNumber);
-        String columnName = HBaseUtils.getQualifierName(acmd,fieldNumber);
+        String familyName = HBaseUtils.getFamilyName(acmd, fieldNumber);
+        String columnName = HBaseUtils.getQualifierName(acmd, fieldNumber);
         try
         {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -107,11 +126,11 @@ public class HBaseInsertFieldManager extends AbstractFieldManager
             throw new NucleusException(e.getMessage(), e);
         }
     }
-    
+
     public void storeFloatField(int fieldNumber, float value)
     {
-        String familyName = HBaseUtils.getFamilyName(acmd,fieldNumber);
-        String columnName = HBaseUtils.getQualifierName(acmd,fieldNumber);
+        String familyName = HBaseUtils.getFamilyName(acmd, fieldNumber);
+        String columnName = HBaseUtils.getQualifierName(acmd, fieldNumber);
         try
         {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -127,11 +146,11 @@ public class HBaseInsertFieldManager extends AbstractFieldManager
             throw new NucleusException(e.getMessage(), e);
         }
     }
-    
+
     public void storeIntField(int fieldNumber, int value)
     {
-        String familyName = HBaseUtils.getFamilyName(acmd,fieldNumber);
-        String columnName = HBaseUtils.getQualifierName(acmd,fieldNumber);
+        String familyName = HBaseUtils.getFamilyName(acmd, fieldNumber);
+        String columnName = HBaseUtils.getQualifierName(acmd, fieldNumber);
         try
         {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -147,11 +166,11 @@ public class HBaseInsertFieldManager extends AbstractFieldManager
             throw new NucleusException(e.getMessage(), e);
         }
     }
-    
+
     public void storeLongField(int fieldNumber, long value)
     {
-        String familyName = HBaseUtils.getFamilyName(acmd,fieldNumber);
-        String columnName = HBaseUtils.getQualifierName(acmd,fieldNumber);
+        String familyName = HBaseUtils.getFamilyName(acmd, fieldNumber);
+        String columnName = HBaseUtils.getQualifierName(acmd, fieldNumber);
         try
         {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -167,37 +186,172 @@ public class HBaseInsertFieldManager extends AbstractFieldManager
             throw new NucleusException(e.getMessage(), e);
         }
     }
-    
+
     public void storeObjectField(int fieldNumber, Object value)
     {
-        String familyName = HBaseUtils.getFamilyName(acmd,fieldNumber);
-        String columnName = HBaseUtils.getQualifierName(acmd,fieldNumber);
-        if(value==null)
+        String familyName = HBaseUtils.getFamilyName(acmd, fieldNumber);
+        String columnName = HBaseUtils.getQualifierName(acmd, fieldNumber);
+        if (value == null)
         {
             delete.deleteColumn(familyName.getBytes(), columnName.getBytes());
         }
         else
         {
-            try
+            ExecutionContext context = objectProvider.getExecutionContext();
+            ClassLoaderResolver clr = context.getClassLoaderResolver();
+            AbstractMemberMetaData fieldMetaData = acmd.getMetaDataForManagedMemberAtAbsolutePosition(fieldNumber);
+            int relationType = fieldMetaData.getRelationType(clr);
+
+            switch (relationType)
             {
-                ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                ObjectOutputStream oos = new ObjectOutputStream(bos);
-                oos.writeObject(value);
-                put.add(familyName.getBytes(), columnName.getBytes(), bos.toByteArray());
-                oos.close();
-                bos.close();
-            }
-            catch (IOException e)
-            {
-                throw new NucleusException(e.getMessage(), e);
+                case Relation.ONE_TO_ONE_BI :
+                case Relation.ONE_TO_ONE_UNI :
+                case Relation.MANY_TO_ONE_BI :
+                {
+                    Object persisted = context.persistObjectInternal(value, objectProvider, -1, StateManager.PC);
+
+                    Object valueId = context.getApiAdapter().getIdForObject(persisted);
+
+                    try
+                    {
+
+                        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                        ObjectOutputStream oos = new ObjectOutputStream(bos);
+                        oos.writeObject(valueId);
+
+                        put.add(familyName.getBytes(), columnName.getBytes(), bos.toByteArray());
+
+                        oos.close();
+                        bos.close();
+                    }
+                    catch (IOException e)
+                    {
+                        throw new NucleusException(e.getMessage(), e);
+                    }
+                    break;
+                }
+                case Relation.MANY_TO_MANY_BI :
+                case Relation.ONE_TO_MANY_BI :
+                case Relation.ONE_TO_MANY_UNI :
+                {
+                    if (value instanceof Collection)
+                    {
+
+                        List<Object> mapping = new ArrayList<Object>();
+
+                        for (Object c : (Collection) value)
+                        {
+
+                            Object persisted = context.persistObjectInternal(c, objectProvider, -1, StateManager.PC);
+                            Object valueId = context.getApiAdapter().getIdForObject(persisted);
+                            mapping.add(valueId);
+                        }
+
+                        try
+                        {
+
+                            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                            ObjectOutputStream oos = new ObjectOutputStream(bos);
+                            oos.writeObject(mapping);
+
+                            put.add(familyName.getBytes(), columnName.getBytes(), bos.toByteArray());
+
+                            oos.close();
+                            bos.close();
+                        }
+                        catch (IOException e)
+                        {
+                            throw new NucleusException(e.getMessage(), e);
+                        }
+                    }
+                    else if (value instanceof Map)
+                    {
+                        // Process all keys, values of the Map that are PC
+
+                        Map<Object, Object> mapping = new TreeMap<Object, Object>();
+
+                        Map map = (Map) value;
+                        ApiAdapter api = context.getApiAdapter();
+                        Set keys = map.keySet();
+                        Iterator iter = keys.iterator();
+                        while (iter.hasNext())
+                        {
+                            Object mapKey = iter.next();
+                            Object key = null;
+
+                            if (api.isPersistable(mapKey))
+                            {
+                                Object persisted = context.persistObjectInternal(mapKey, objectProvider, -1, StateManager.PC);
+                                key = context.getApiAdapter().getIdForObject(persisted);
+                            }
+                            else
+                            {
+                                key = mapKey;
+                            }
+
+                            Object mapValue = map.get(key);
+                            Object key_value = null;
+
+                            if (api.isPersistable(mapValue))
+                            {
+
+                                Object persisted = context.persistObjectInternal(mapValue, objectProvider, -1, StateManager.PC);
+                                key_value = context.getApiAdapter().getIdForObject(persisted);
+                            }
+                            else
+                            {
+                                key_value = mapValue;
+                            }
+
+                            mapping.put(key, key_value);
+
+                        }
+
+                        try
+                        {
+
+                            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                            ObjectOutputStream oos = new ObjectOutputStream(bos);
+                            oos.writeObject(mapping);
+
+                            put.add(familyName.getBytes(), columnName.getBytes(), bos.toByteArray());
+
+                            oos.close();
+                            bos.close();
+                        }
+                        catch (IOException e)
+                        {
+                            throw new NucleusException(e.getMessage(), e);
+                        }
+                    }
+                    break;
+                }
+
+                default :
+                    try
+                    {
+                        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                        ObjectOutputStream oos = new ObjectOutputStream(bos);
+                        oos.writeObject(value);
+
+                        put.add(familyName.getBytes(), columnName.getBytes(), bos.toByteArray());
+
+                        oos.close();
+                        bos.close();
+                    }
+                    catch (IOException e)
+                    {
+                        throw new NucleusException(e.getMessage(), e);
+                    }
+                    break;
             }
         }
     }
-    
+
     public void storeShortField(int fieldNumber, short value)
     {
-        String familyName = HBaseUtils.getFamilyName(acmd,fieldNumber);
-        String columnName = HBaseUtils.getQualifierName(acmd,fieldNumber);
+        String familyName = HBaseUtils.getFamilyName(acmd, fieldNumber);
+        String columnName = HBaseUtils.getQualifierName(acmd, fieldNumber);
         try
         {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -213,12 +367,12 @@ public class HBaseInsertFieldManager extends AbstractFieldManager
             throw new NucleusException(e.getMessage(), e);
         }
     }
-    
+
     public void storeStringField(int fieldNumber, String value)
     {
-        String familyName = HBaseUtils.getFamilyName(acmd,fieldNumber);
-        String columnName = HBaseUtils.getQualifierName(acmd,fieldNumber);
-        if(value==null)
+        String familyName = HBaseUtils.getFamilyName(acmd, fieldNumber);
+        String columnName = HBaseUtils.getQualifierName(acmd, fieldNumber);
+        if (value == null)
         {
             delete.deleteColumn(familyName.getBytes(), columnName.getBytes());
         }

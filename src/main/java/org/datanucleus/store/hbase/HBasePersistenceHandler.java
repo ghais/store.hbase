@@ -40,7 +40,7 @@ public class HBasePersistenceHandler extends AbstractPersistenceHandler
 {
     /** Localiser for messages. */
     protected static final Localiser LOCALISER = Localiser.getInstance(
-            "Localisation", HBaseStoreManager.class.getClassLoader());
+        "Localisation", HBaseStoreManager.class.getClassLoader());
 
     protected final HBaseStoreManager storeMgr;
 
@@ -90,7 +90,7 @@ public class HBasePersistenceHandler extends AbstractPersistenceHandler
             {
                 throw new NucleusObjectNotFoundException();
             }
-            HBaseFetchFieldManager fm = new HBaseFetchFieldManager(acmd, result);
+            HBaseFetchFieldManager fm = new HBaseFetchFieldManager(acmd, sm, result);
             sm.replaceFields(acmd.getAllMemberPositions(), fm);
             table.close();
         }
@@ -140,7 +140,7 @@ public class HBasePersistenceHandler extends AbstractPersistenceHandler
             HTable table = mconn.getHTable(HBaseUtils.getTableName(acmd));
             Put put = newPut(sm);
             Delete delete = newDelete(sm);
-            HBaseInsertFieldManager fm = new HBaseInsertFieldManager(acmd, put, delete);
+            HBaseInsertFieldManager fm = new HBaseInsertFieldManager(acmd, sm, put, delete);
             sm.provideFields(acmd.getAllMemberPositions(), fm);
             table.put(put);
             table.close();
@@ -240,7 +240,7 @@ public class HBasePersistenceHandler extends AbstractPersistenceHandler
             HTable table = mconn.getHTable(HBaseUtils.getTableName(acmd));
             Put put = newPut(sm);
             Delete delete = newDelete(sm); // we will ignore the delete object
-            HBaseInsertFieldManager fm = new HBaseInsertFieldManager(acmd, put, delete);
+            HBaseInsertFieldManager fm = new HBaseInsertFieldManager(acmd, sm, put, delete);
             sm.provideFields(fieldNumbers, fm);
             if( !put.isEmpty() )
             {

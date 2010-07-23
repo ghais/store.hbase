@@ -89,13 +89,14 @@ class HBaseQueryUtils
                     // StateManager calls the fetchFields method
                     public void fetchFields(ObjectProvider sm)
                     {
-                        sm.replaceFields(acmd.getPKMemberPositions(), new HBaseFetchFieldManager(acmd, result));
-                        sm.replaceFields(acmd.getBasicMemberPositions(clr, om.getMetaDataManager()), new HBaseFetchFieldManager(acmd, result));
+                        sm.replaceFields(acmd.getPKMemberPositions(), new HBaseFetchFieldManager(acmd, sm, result));
+                        sm.replaceFields(acmd.getBasicMemberPositions(clr, om.getMetaDataManager()), new HBaseFetchFieldManager(acmd, sm,
+                                result));
                     }
 
                     public void fetchNonLoadedFields(ObjectProvider sm)
                     {
-                        sm.replaceNonLoadedFields(acmd.getAllMemberPositions(), new HBaseFetchFieldManager(acmd, result));
+                        sm.replaceNonLoadedFields(acmd.getAllMemberPositions(), new HBaseFetchFieldManager(acmd, sm, result));
                     }
 
                     public FetchPlan getFetchPlanForLoading()
