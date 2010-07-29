@@ -14,7 +14,7 @@ limitations under the License.
 
 Contributors:
    ...
-**********************************************************************/
+ **********************************************************************/
 package org.datanucleus.store.hbase;
 
 import org.datanucleus.metadata.AbstractClassMetaData;
@@ -24,23 +24,23 @@ import org.datanucleus.metadata.MetaDataListener;
 import org.datanucleus.util.Localiser;
 
 /**
- * Listener for the load of metadata for classes.
- * Allows us to reject metadata when it isn't supported by this datastore.
+ * Listener for the load of metadata for classes. Allows us to reject metadata when it isn't supported by this
+ * datastore.
  */
 public class HBaseMetaDataListener implements MetaDataListener
 {
     /** Localiser for messages. */
-    protected static final Localiser LOCALISER = Localiser.getInstance(
-        "Localisation", HBaseStoreManager.class.getClassLoader());
+    protected static final Localiser LOCALISER = Localiser.getInstance("Localisation", HBaseStoreManager.class.getClassLoader());
 
     private HBaseStoreManager storeManager;
-    
+
     HBaseMetaDataListener(HBaseStoreManager storeManager)
     {
         this.storeManager = storeManager;
     }
-    
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
      * @see org.datanucleus.metadata.MetaDataListener#loaded(org.datanucleus.metadata.AbstractClassMetaData)
      */
     public void loaded(AbstractClassMetaData cmd)
@@ -50,10 +50,11 @@ public class HBaseMetaDataListener implements MetaDataListener
             // Datastore id not supported
             throw new InvalidMetaDataException(LOCALISER, "HBase.DatastoreID", cmd.getFullClassName());
         }
+
         if (storeManager.isAutoCreateTables() || storeManager.isAutoCreateColumns())
         {
-            HBaseUtils.createSchema(storeManager.getHbaseConfig(), cmd, storeManager.isAutoCreateColumns());
+            Utils.createSchema(storeManager.getHbaseConfig(), cmd, storeManager.isAutoCreateColumns());
         }
-        
+
     }
 }

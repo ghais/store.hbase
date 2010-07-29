@@ -14,7 +14,7 @@ limitations under the License.
 
 Contributors :
     ...
-***********************************************************************/
+ ***********************************************************************/
 package org.datanucleus.store.hbase.query;
 
 import java.security.AccessController;
@@ -38,13 +38,13 @@ import org.datanucleus.store.ObjectProvider;
 import org.datanucleus.store.Type;
 import org.datanucleus.store.hbase.HBaseFetchFieldManager;
 import org.datanucleus.store.hbase.HBaseManagedConnection;
-import org.datanucleus.store.hbase.HBaseUtils;
+import org.datanucleus.store.hbase.Utils;
 
 class HBaseQueryUtils
 {
     /**
-     * Convenience method to get all objects of the candidate type (and optional subclasses) from the 
-     * specified XML connection.
+     * Convenience method to get all objects of the candidate type (and optional subclasses) from the specified XML
+     * connection.
      * @param om ObjectManager
      * @param mconn Managed Connection
      * @param candidateClass Candidate
@@ -52,36 +52,37 @@ class HBaseQueryUtils
      * @param ignoreCache Whether to ignore the cache
      * @return List of objects of the candidate type (or subclass)
      */
-    static List getObjectsOfCandidateType(final ExecutionContext om, final HBaseManagedConnection mconn,
-            Class candidateClass, boolean subclasses, boolean ignoreCache)
+    @SuppressWarnings("unchecked")
+    static List<Object> getObjectsOfCandidateType(final ExecutionContext om, final HBaseManagedConnection mconn, Class<?> candidateClass,
+            boolean subclasses, boolean ignoreCache)
     {
-        List results = new ArrayList();
+        List<Object> results = new ArrayList<Object>();
         try
         {
             final ClassLoaderResolver clr = om.getClassLoaderResolver();
-            final AbstractClassMetaData acmd = om.getMetaDataManager().getMetaDataForClass(candidateClass,clr);
+            final AbstractClassMetaData acmd = om.getMetaDataManager().getMetaDataForClass(candidateClass, clr);
 
-            Iterator<Result> it = (Iterator<Result>) AccessController.doPrivileged(new PrivilegedExceptionAction()
+            Iterator<Result> it = (Iterator<Result>) AccessController.doPrivileged(new PrivilegedExceptionAction<Object>()
             {
                 public Object run() throws Exception
                 {
-                    HTable table = mconn.getHTable(HBaseUtils.getTableName(acmd));
+                    final HTable table = mconn.getHTable(Utils.getTableName(acmd));
 
-                    Scan scan = new Scan();
-                    int[] fieldNumbers =  acmd.getAllMemberPositions();
-                    for(int i=0; i<fieldNumbers.length; i++)
+                    final Scan scan = new Scan();
+                    final int[] fieldNumbers = acmd.getAllMemberPositions();
+                    for (int i = 0; i < fieldNumbers.length; i++)
                     {
-                        byte[] familyNames = HBaseUtils.getFamilyName(acmd,fieldNumbers[i]).getBytes();
-                        byte[] columnNames = HBaseUtils.getQualifierName(acmd, fieldNumbers[i]).getBytes();
-                        scan.addColumn(familyNames,columnNames);
+                        final byte[] familyNames = Utils.getFamilyName(acmd, fieldNumbers[i]).getBytes();
+                        final byte[] columnNames = Utils.getQualifierName(acmd, fieldNumbers[i]).getBytes();
+                        scan.addColumn(familyNames, columnNames);
                     }
-                    ResultScanner scanner = table.getScanner(scan);
-                    Iterator<Result> it = scanner.iterator();
+                    final ResultScanner scanner = table.getScanner(scan);
+                    final Iterator<Result> it = scanner.iterator();
                     return it;
                 }
             });
-            
-            while(it.hasNext())
+
+            while (it.hasNext())
             {
                 final Result result = it.next();
                 results.add(om.findObjectUsingAID(new Type(clr.classForName(acmd.getFullClassName())), new FieldValues2()
@@ -89,19 +90,17 @@ class HBaseQueryUtils
                     // StateManager calls the fetchFields method
                     public void fetchFields(ObjectProvider sm)
                     {
-                        sm.replaceFields(acmd.getPKMemberPositions(), new HBaseFetchFieldManager(acmd, sm, result));
-                        sm.replaceFields(acmd.getBasicMemberPositions(clr, om.getMetaDataManager()), new HBaseFetchFieldManager(acmd, sm,
-                                result));
+                        sm.replaceFields(acmd.getPKMemberPositions(), new HBaseFetchFieldManager(sm, result));
                     }
 
                     public void fetchNonLoadedFields(ObjectProvider sm)
                     {
-                        sm.replaceNonLoadedFields(acmd.getAllMemberPositions(), new HBaseFetchFieldManager(acmd, sm, result));
+                        sm.replaceNonLoadedFields(acmd.getPKMemberPositions(), new HBaseFetchFieldManager(sm, result));
                     }
 
                     public FetchPlan getFetchPlanForLoading()
                     {
-                        return null;
+                        return om.getFetchPlan();
                     }
                 }, ignoreCache, true));
 

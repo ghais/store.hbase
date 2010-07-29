@@ -17,26 +17,23 @@ Contributors :
  ***********************************************************************/
 package org.datanucleus.store.hbase;
 
-import java.util.Properties;
-import java.util.UUID;
+import org.datanucleus.exceptions.NucleusUserException;
 
-import org.datanucleus.store.valuegenerator.AbstractUUIDGenerator;
-
-public class HbaseValueGenerator extends AbstractUUIDGenerator
+/**
+ * Shortcut for new NucleusUserException().setFatal();. Based on the work of datanuclues-appengine
+ */
+public class FatalNucleusUserException extends NucleusUserException
 {
-    public HbaseValueGenerator(String name, Properties props)
+
+    public FatalNucleusUserException(String msg)
     {
-        super(name, props);
+        super(msg);
+        setFatal();
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.datanucleus.store.valuegenerator.AbstractUIDGenerator#getIdentifier()
-     */
-    @Override
-    protected String getIdentifier()
+    public FatalNucleusUserException(String msg, Exception e)
     {
-        return UUID.randomUUID().toString();
+        super(msg, e);
+        setFatal();
     }
-
 }

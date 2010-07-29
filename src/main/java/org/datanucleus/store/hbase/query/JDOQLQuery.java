@@ -14,7 +14,7 @@ limitations under the License.
 
 Contributors :
     ...
-***********************************************************************/
+ ***********************************************************************/
 package org.datanucleus.store.hbase.query;
 
 import java.util.ArrayList;
@@ -81,28 +81,25 @@ public class JDOQLQuery extends AbstractJDOQLQuery
             }
             else if (candidateExtent != null)
             {
-            	candidates = new ArrayList();
-            	Iterator iter = candidateExtent.iterator();
-            	while (iter.hasNext())
-            	{
-            		candidates.add(iter.next());
-            	}
+                candidates = new ArrayList();
+                Iterator iter = candidateExtent.iterator();
+                while (iter.hasNext())
+                {
+                    candidates.add(iter.next());
+                }
             }
             else
             {
-                candidates = HBaseQueryUtils.getObjectsOfCandidateType(ec, mconn, candidateClass, subclasses,
-                    ignoreCache);
+                candidates = HBaseQueryUtils.getObjectsOfCandidateType(ec, mconn, candidateClass, subclasses, ignoreCache);
             }
 
             // Apply any result restrictions to the results
-            JavaQueryEvaluator resultMapper = new JDOQLEvaluator(this, candidates, compilation,
-                parameters, ec.getClassLoaderResolver());
+            JavaQueryEvaluator resultMapper = new JDOQLEvaluator(this, candidates, compilation, parameters, ec.getClassLoaderResolver());
             Collection results = resultMapper.execute(true, true, true, true, true);
 
             if (NucleusLogger.QUERY.isDebugEnabled())
             {
-                NucleusLogger.QUERY.debug(LOCALISER.msg("021074", "JDOQL", 
-                    "" + (System.currentTimeMillis() - startTime)));
+                NucleusLogger.QUERY.debug(LOCALISER.msg("021074", "JDOQL", "" + (System.currentTimeMillis() - startTime)));
             }
 
             return results;

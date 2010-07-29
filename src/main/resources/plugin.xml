@@ -35,5 +35,9 @@ Contributors:
         <connectionfactory name="hbase" class-name="org.datanucleus.store.hbase.ConnectionFactoryImpl" transactional="true"
             datastore="hbase"/>
     </extension>
+    
+    <extension point="org.datanucleus.store_valuegenerator">
+        <valuegenerator name="uuid" class-name="org.datanucleus.store.valuegenerator.UUIDGenerator" unique="true"/>
+    </extension>
 
 </plugin>

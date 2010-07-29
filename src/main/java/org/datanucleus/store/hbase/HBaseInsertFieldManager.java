@@ -1,5 +1,5 @@
 /**********************************************************************
-Copyright (c) 2009 Erik Bengtson and others. All rights reserved.
+Copyright (c) 2010 Ghais Issa and others. All rights reserved.
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
@@ -48,13 +48,10 @@ public class HBaseInsertFieldManager extends AbstractFieldManager
 
     Delete delete;
 
-    AbstractClassMetaData acmd;
-
     ObjectProvider objectProvider;
 
-    public HBaseInsertFieldManager(AbstractClassMetaData acmd, ObjectProvider objectProvider, Put put, Delete delete)
+    public HBaseInsertFieldManager(ObjectProvider objectProvider, Put put, Delete delete)
     {
-        this.acmd = acmd;
         this.put = put;
         this.delete = delete;
         this.objectProvider = objectProvider;
@@ -62,79 +59,89 @@ public class HBaseInsertFieldManager extends AbstractFieldManager
 
     public void storeBooleanField(int fieldNumber, boolean value)
     {
-        String familyName = HBaseUtils.getFamilyName(acmd, fieldNumber);
-        String columnName = HBaseUtils.getQualifierName(acmd, fieldNumber);
+        String familyName = Utils.getFamilyName(getClassMetaData(), fieldNumber);
+        String columnName = Utils.getQualifierName(getClassMetaData(), fieldNumber);
 
         put.add(Bytes.toBytes(familyName), Bytes.toBytes(columnName), Bytes.toBytes(value));
+    }
 
+    /**
+     * @return
+     */
+    AbstractClassMetaData getClassMetaData()
+    {
+        return objectProvider.getClassMetaData();
     }
 
     public void storeByteField(int fieldNumber, byte value)
     {
-        String familyName = HBaseUtils.getFamilyName(acmd, fieldNumber);
-        String columnName = HBaseUtils.getQualifierName(acmd, fieldNumber);
+        String familyName = Utils.getFamilyName(getClassMetaData(), fieldNumber);
+        String columnName = Utils.getQualifierName(getClassMetaData(), fieldNumber);
         put.add(Bytes.toBytes(familyName), Bytes.toBytes(columnName), Bytes.toBytes(value));
     }
 
     public void storeCharField(int fieldNumber, char value)
     {
-        String familyName = HBaseUtils.getFamilyName(acmd, fieldNumber);
-        String columnName = HBaseUtils.getQualifierName(acmd, fieldNumber);
+        String familyName = Utils.getFamilyName(getClassMetaData(), fieldNumber);
+        String columnName = Utils.getQualifierName(getClassMetaData(), fieldNumber);
         put.add(Bytes.toBytes(familyName), Bytes.toBytes(columnName), Bytes.toBytes(value));
     }
 
     public void storeDoubleField(int fieldNumber, double value)
     {
-        String familyName = HBaseUtils.getFamilyName(acmd, fieldNumber);
-        String columnName = HBaseUtils.getQualifierName(acmd, fieldNumber);
+        String familyName = Utils.getFamilyName(getClassMetaData(), fieldNumber);
+        String columnName = Utils.getQualifierName(getClassMetaData(), fieldNumber);
         put.add(Bytes.toBytes(familyName), Bytes.toBytes(columnName), Bytes.toBytes(value));
     }
 
     public void storeFloatField(int fieldNumber, float value)
     {
-        String familyName = HBaseUtils.getFamilyName(acmd, fieldNumber);
-        String columnName = HBaseUtils.getQualifierName(acmd, fieldNumber);
+        String familyName = Utils.getFamilyName(getClassMetaData(), fieldNumber);
+        String columnName = Utils.getQualifierName(getClassMetaData(), fieldNumber);
         put.add(Bytes.toBytes(familyName), Bytes.toBytes(columnName), Bytes.toBytes(value));
     }
 
     public void storeIntField(int fieldNumber, int value)
     {
-        String familyName = HBaseUtils.getFamilyName(acmd, fieldNumber);
-        String columnName = HBaseUtils.getQualifierName(acmd, fieldNumber);
+        String familyName = Utils.getFamilyName(getClassMetaData(), fieldNumber);
+        String columnName = Utils.getQualifierName(getClassMetaData(), fieldNumber);
         put.add(Bytes.toBytes(familyName), Bytes.toBytes(columnName), Bytes.toBytes(value));
     }
 
     public void storeLongField(int fieldNumber, long value)
     {
-        String familyName = HBaseUtils.getFamilyName(acmd, fieldNumber);
-        String columnName = HBaseUtils.getQualifierName(acmd, fieldNumber);
+        String familyName = Utils.getFamilyName(getClassMetaData(), fieldNumber);
+        String columnName = Utils.getQualifierName(getClassMetaData(), fieldNumber);
         put.add(Bytes.toBytes(familyName), Bytes.toBytes(columnName), Bytes.toBytes(value));
     }
 
+    @SuppressWarnings("rawtypes")
     public void storeObjectField(int fieldNumber, Object value)
     {
-        String familyName = HBaseUtils.getFamilyName(acmd, fieldNumber);
-        String columnName = HBaseUtils.getQualifierName(acmd, fieldNumber);
+        String familyName = Utils.getFamilyName(getClassMetaData(), fieldNumber);
+        String columnName = Utils.getQualifierName(getClassMetaData(), fieldNumber);
         if (value == null)
         {
             delete.deleteColumn(Bytes.toBytes(familyName), Bytes.toBytes(columnName));
         }
         else
         {
-            ExecutionContext context = objectProvider.getExecutionContext();
-            ClassLoaderResolver clr = context.getClassLoaderResolver();
-            AbstractMemberMetaData fieldMetaData = acmd.getMetaDataForManagedMemberAtAbsolutePosition(fieldNumber);
+            ClassLoaderResolver clr = getClassLoaderResolver();
+            AbstractMemberMetaData fieldMetaData = getClassMetaData().getMetaDataForManagedMemberAtAbsolutePosition(fieldNumber);
             int relationType = fieldMetaData.getRelationType(clr);
 
             switch (relationType)
             {
-                case Relation.ONE_TO_ONE_BI :
                 case Relation.ONE_TO_ONE_UNI :
-                case Relation.MANY_TO_ONE_BI :
+                case Relation.ONE_TO_ONE_BI :
                 {
+
+                    Object valueId = null;
+
+                    ExecutionContext context = objectProvider.getExecutionContext();
                     Object persisted = context.persistObjectInternal(value, objectProvider, -1, StateManager.PC);
 
-                    Object valueId = context.getApiAdapter().getIdForObject(persisted);
+                    valueId = context.getApiAdapter().getIdForObject(persisted);
 
                     try
                     {
@@ -154,16 +161,17 @@ public class HBaseInsertFieldManager extends AbstractFieldManager
                     }
                     break;
                 }
-                case Relation.MANY_TO_MANY_BI :
-                case Relation.ONE_TO_MANY_BI :
                 case Relation.ONE_TO_MANY_UNI :
+                case Relation.ONE_TO_MANY_BI :
+
                 {
+                    ExecutionContext context = objectProvider.getExecutionContext();
                     if (value instanceof Collection)
                     {
 
                         List<Object> mapping = new ArrayList<Object>();
 
-                        for (Object c : (Collection) value)
+                        for (Object c : (Collection<?>) value)
                         {
 
                             Object persisted = context.persistObjectInternal(c, objectProvider, -1, StateManager.PC);
@@ -250,7 +258,6 @@ public class HBaseInsertFieldManager extends AbstractFieldManager
                     }
                     break;
                 }
-
                 default :
                     try
                     {
@@ -274,15 +281,15 @@ public class HBaseInsertFieldManager extends AbstractFieldManager
 
     public void storeShortField(int fieldNumber, short value)
     {
-        String familyName = HBaseUtils.getFamilyName(acmd, fieldNumber);
-        String columnName = HBaseUtils.getQualifierName(acmd, fieldNumber);
+        String familyName = Utils.getFamilyName(getClassMetaData(), fieldNumber);
+        String columnName = Utils.getQualifierName(getClassMetaData(), fieldNumber);
         put.add(Bytes.toBytes(familyName), Bytes.toBytes(columnName), Bytes.toBytes(value));
     }
 
     public void storeStringField(int fieldNumber, String value)
     {
-        String familyName = HBaseUtils.getFamilyName(acmd, fieldNumber);
-        String columnName = HBaseUtils.getQualifierName(acmd, fieldNumber);
+        String familyName = Utils.getFamilyName(getClassMetaData(), fieldNumber);
+        String columnName = Utils.getQualifierName(getClassMetaData(), fieldNumber);
         if (value == null)
         {
             delete.deleteColumn(Bytes.toBytes(familyName), Bytes.toBytes(columnName));
@@ -291,5 +298,13 @@ public class HBaseInsertFieldManager extends AbstractFieldManager
         {
             put.add(Bytes.toBytes(familyName), Bytes.toBytes(columnName), Bytes.toBytes(value));
         }
+    }
+
+    /**
+     * @return
+     */
+    ClassLoaderResolver getClassLoaderResolver()
+    {
+        return objectProvider.getExecutionContext().getClassLoaderResolver();
     }
 }
