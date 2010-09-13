@@ -217,6 +217,10 @@ public class HBaseFetchFieldManager extends AbstractFieldManager
                     {
                         collection = new HashSet<Object>();
                     }
+                    else if (Collection.class.isAssignableFrom(fieldMetaData.getType()))
+                    {
+                        collection = new ArrayList<Object>();
+                    }
                     for (Object id : mapping)
                     {
 
