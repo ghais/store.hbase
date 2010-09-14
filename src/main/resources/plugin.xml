@@ -37,7 +37,7 @@ Contributors:
     </extension>
     
     <extension point="org.datanucleus.store_valuegenerator">
-        <valuegenerator name="uuid" class-name="org.datanucleus.store.valuegenerator.UUIDGenerator" unique="true"/>
+        <valuegenerator name="hbase-uuid" class-name="org.datanucleus.store.hbase.valuegenerator.HBaseUUIDGenerator" unique="true"/>
     </extension>
 
 </plugin>

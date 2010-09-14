@@ -33,6 +33,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.UUID;
 
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
@@ -44,6 +45,7 @@ import org.datanucleus.exceptions.NucleusDataStoreException;
 import org.datanucleus.metadata.AbstractClassMetaData;
 import org.datanucleus.metadata.AbstractMemberMetaData;
 import org.datanucleus.metadata.ColumnMetaData;
+import org.datanucleus.metadata.IdentityStrategy;
 import org.datanucleus.store.ObjectProvider;
 
 public class Utils
@@ -187,12 +189,23 @@ public class Utils
     static byte[] getPrimaryKeyBytes(ObjectProvider sm) throws IOException
     {
         AbstractClassMetaData acmd = sm.getClassMetaData();
-        Class<?> type = acmd.getMetaDataForManagedMemberAtAbsolutePosition(sm.getClassMetaData().getPKMemberPositions()[0]).getType();
+        AbstractMemberMetaData mmd = acmd.getMetaDataForManagedMemberAtAbsolutePosition(sm.getClassMetaData().getPKMemberPositions()[0]);
+        Class<?> type = mmd.getType();
         Object pkValue = sm.provideField(acmd.getPKMemberPositions()[0]);
+        if(pkValue == null && mmd.getValueStrategy() == IdentityStrategy.IDENTITY) {
+            pkValue = UUID.randomUUID().toString();
+            sm.setPostStoreNewObjectId(pkValue);
+        }
         if (pkValue == null)
         {
             return null;
         }
+        if (mmd.getValueStrategy() == IdentityStrategy.IDENTITY)
+        {
+            sm.setPostStoreNewObjectId(pkValue);
+        }
+        
+
         if (type.equals(String.class))
         {
             return Bytes.toBytes((String) pkValue);
